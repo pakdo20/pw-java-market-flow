@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title>Lista de Clientes</title>
+</h:head>
+
+<h:body>
+
+	<h1>Clientes</h1>
+	
+	<h:form id="form-cliente">
+		<p:growl id="growl" life="2000" />
+		<p:panelGrid id="panel-cliente" columns="4" style="#{clienteView.stylePanelCliente}" >
+			<p:outputLabel for="input-nombresApellidos" value="Nombres y Apellidos :"/>
+			<p:inputText id="input-nombresApellidos" value="#{clienteView.cliente.nombresApellidos}" />			
+			<p:outputLabel for="input-numeroDocumento" value="Número de documento :"/>
+			<p:inputText id="input-numeroDocumento" value="#{clienteView.cliente.numeroDocumento}" />
+			
+			<p:outputLabel for="input-direccion" value="Dirección :"/>
+			<p:inputText id="input-direccion" value="#{clienteView.cliente.direccion}" />
+			<p:outputLabel for="select-distrito" value="Distrito :"/>
+			<p:selectOneMenu id="select-distrito" value="#{clienteView.cliente.distritoId}">
+			    <f:selectItem itemLabel="Selecciona uno" itemValue="0" noSelectionOption="true" />-->
+			    <f:selectItems value="#{distritoMenuView.distritos}" var="distrito" 
+			    	itemLabel="#{distrito.nombre}" itemValue="#{distrito.id}" />
+			</p:selectOneMenu>
+
+			<p:outputLabel for="input-telefono" value="Teléfono :"/>
+			<p:inputText id="input-telefono" value="#{clienteView.cliente.telefono}" />
+			<p:outputLabel for="input-email" value="E-mail :"/>
+			<p:inputText id="input-email" value="#{clienteView.cliente.email}" />
+			
+			<p:outputLabel for="input-fechaNacimiento" value="Fecha de nacimiento :"/>
+			<p:datePicker id="input-fechaNacimiento" value="#{clienteView.cliente.fechaNacimiento}" />
+		</p:panelGrid>
+		
+		<p:panelGrid id="panel-search" columns="4" style="#{clienteView.styleTableCliente}" >
+			<p:outputLabel for="input-search-nombresApellidos" value="Nombres y Apellidos :"/>
+			<p:inputText id="input-search-nombresApellidos" value="#{clienteView.clienteSearch.nombresApellidos}" />	
+			<p:commandButton value="Buscar" icon="pi pi-search" 
+				actionListener="#{clienteView.findByNombresApellidos()}" 
+				update=":form-cliente:table-cliente :form-cliente:toolbar-cliente" />
+			<p:commandButton value="Limpiar" icon="pi pi-refresh" 
+				actionListener="#{clienteView.cleanByNombresApellidos()}" 
+				update="@form" />
+				
+			<p:outputLabel for="input-search-numeroDocumento" value="Número de documento :"/>
+			<p:inputText id="input-search-numeroDocumento" value="#{clienteView.clienteSearch.numeroDocumento}" />	
+			<p:commandButton value="Buscar" icon="pi pi-search" 
+				actionListener="#{clienteView.findByNumeroDocumento()}" 
+				update=":form-cliente:table-cliente :form-cliente:toolbar-cliente" />
+			<p:commandButton value="Limpiar" icon="pi pi-refresh" 
+				actionListener="#{clienteView.cleanByNumeroDocumento()}" 
+				update="@form" />
+		</p:panelGrid>
+		
+		<p:dataTable id="table-cliente" value="#{clienteView.clientes}" var="cliente"
+				paginator="true" rows="5" paginatorPosition="bottom" 
+				selectionMode="single" rowKey="#{cliente.id}"
+				style="#{clienteView.styleTableCliente}" emptyMessage="No hay clientes encontrados">
+				
+			<p:ajax event="rowSelect" listener="#{clienteView.selectCliente}" update="@form" />
+			<p:ajax event="rowUnselect" listener="#{clienteView.unselectCliente}" update="@form"  />
+			
+		    <p:column headerText="Id">
+		        <h:outputText value="#{cliente.id}" />
+		    </p:column>		 
+		    <p:column headerText="Nombres y Apellidos">
+		        <h:outputText value="#{cliente.nombresApellidos}" />
+		    </p:column>		 
+		    <p:column headerText="Numero de Documento">
+		        <h:outputText value="#{cliente.numeroDocumento}" />
+		    </p:column>		 
+		    <p:column headerText="Dirección">
+		        <h:outputText value="#{cliente.direccion}" />
+		    </p:column>		    
+		    <p:column headerText="Distrito">
+		        <h:outputText value="#{cliente.distrito.nombre}" />
+		    </p:column>		    
+		    <p:column headerText="Telefono">
+		        <h:outputText value="#{cliente.telefono}" />
+		    </p:column>		    
+		    <p:column headerText="E-mail">
+		        <h:outputText value="#{cliente.email}" />
+		    </p:column>	
+		    <p:column headerText="Fecha de Nacimiento">
+		        <h:outputText value="#{cliente.fechaNacimiento}" />
+		    </p:column>		    
+		</p:dataTable> 
+		
+		<p:toolbar id="toolbar-cliente">
+			<f:facet name="left">
+				<p:commandButton value="Nuevo" icon="pi pi-file" disabled="#{clienteView.disabledButtonNuevo}"
+					actionListener="#{clienteView.newCliente()}" 
+					update="@form" />
+					
+				<p:commandButton value="Grabar" icon="pi pi-save" disabled="#{clienteView.disabledButtonGrabar}"
+					actionListener="#{clienteView.saveCliente()}"
+					update="@form" />
+				<p:commandButton value="Cancelar" icon="pi pi-times" disabled="#{clienteView.disabledButtonCancelar}"
+					actionListener="#{clienteView.cancelCliente()}"
+					update="@form" />
+					
+				<p:commandButton value="Editar" icon="pi pi-pencil" disabled="#{clienteView.disabledButtonEditar}"
+					actionListener="#{clienteView.editCliente()}" 
+					update="@form" />
+					
+				<p:commandButton value="Eliminar" icon="pi pi-trash" disabled="#{clienteView.disabledButtonEliminar}"
+					actionListener="#{clienteView.deleteCliente()}" 
+					update=":form-cliente:table-cliente :form-cliente:toolbar-cliente" >
+					<p:confirm header="Confirmación" 
+						message="Estas seguro que deseas elimininar a: #{clienteView.messageConfirmDialog}?" 
+						icon="pi pi-exclamation-triangle" />
+				</p:commandButton>
+				
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			        <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+			        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+			    </p:confirmDialog> 
+							
+				
+			</f:facet>
+		</p:toolbar>
+	
+	</h:form>
+	
+	
+	
+</h:body>
+</html>
